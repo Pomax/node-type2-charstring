@@ -1,4 +1,4 @@
-var fs = require("fs-extra");
+var fs = require("fs");
 var type2Charstring = require('./index');
 
 Array.prototype.equals = function(target) {
