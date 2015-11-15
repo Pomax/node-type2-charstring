@@ -15,5 +15,12 @@
     "test": "node test"
   },
   "author": "Pomax",
-  "license": "MIT"
+  "license": "MIT",
+  "keywords": [
+    "opentype",
+    "font",
+    "type2",
+    "charstring",
+    "cff"
+  ]
 }
