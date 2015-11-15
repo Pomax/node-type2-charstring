@@ -1,11 +1,11 @@
 {
   "name": "node-type2-charstring",
   "version": "1.0.0",
-  "description": "",
+  "description": "A simple converter for Type2 charstrings in human readable and byte form.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"No testing specified\" && exit 1"
   },
-  "author": "",
+  "author": "Pomax",
   "license": "MIT"
 }
