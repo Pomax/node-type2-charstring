@@ -2,6 +2,14 @@
   "name": "node-type2-charstring",
   "version": "1.0.0",
   "description": "A simple converter for Type2 charstrings in human readable and byte form.",
+  "homepage": "https://github.com/Pomax/node-type2-charstring",
+  "repository": {
+    "type": "git",
+    "url" : "https://github.com/Pomax/node-type2-charstring"
+  },
+  "bugs": {
+    "url": "https://github.com/Pomax/node-type2-charstring/issues"
+  },
   "main": "index.js",
   "scripts": {
     "test": "node test"
