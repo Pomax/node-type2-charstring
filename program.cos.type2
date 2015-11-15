@@ -1,0 +1,12 @@
+// cos(x):255,0,1,0,57,12,10,139,29,11
+//
+// dependencies: sin(x)
+
+// form x' = x + pi/2
+1.57 add
+
+// calculate cos(x) as sin(x')
+sin(x)
+
+// return to previous control flow
+return

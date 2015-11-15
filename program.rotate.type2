@@ -1,0 +1,31 @@
+// rotate(angle, ox, oy, x, y):143,12,20,142,12,20,141,12,20,140,12,20,139,12,20,139,12,21,139,29,144,12,20,139,12,21,140,29,145,12,20,142,12,21,140,12,21,12,11,146,12,20,143,12,21,141,12,21,12,11,147,12,20,146,12,21,145,12,21,12,24,148,12,20,147,12,21,145,12,21,12,24,149,12,20,142,12,21,148,12,21,149,12,21,12,14,12,10,12,10,150,12,20,146,12,21,145,12,21,12,24,151,12,20,147,12,21,144,12,21,12,24,152,12,20,141,12,21,151,12,21,152,12,21,12,10,12,10,153,12,20,12,21,139,12,21,140,12,21,141,12,21,152,12,21,153,11
+//
+// dependencies: sin(x), cos(x)
+
+// When we start the stack contains: [angle, ox, oy, x, y],
+// so we put them onto the transient stack in argument order:
+4 put, 3 put, 2 put, 1 put, 0 put
+
+// compute the sin(x) and cos(x) of the provided angle
+0 get, sin(x), 5 put
+0 get, cos(x), 6 put
+
+// compute (x-ox) and (y-oy)
+3 get, 1 get, sub, 7 put
+4 get, 2 get, sub, 8 put
+
+// nx = (x-ox) * cos(angle) + -((y-oy) * sin(angle)) + ox
+7 get, 6 get, mul, 9 put
+8 get, 6 get, mul, 10 put
+3 get, 9 get, 10 get, neg, add, add, 11 put
+
+// ny = (x-ox) * sin(angle) + (y-oy) * cos(angle) + oy
+7 get, 6 get, mul, 12 put
+8 get, 5 get, mul, 13 put
+2 get, 12 get, 13 get, add, add, 14 put
+
+// restore the stack so that it's [angle, ox, oy, nx, ny]
+get 0, get 1, get 2, get 13, get 14
+
+// return to previous control flow
+return

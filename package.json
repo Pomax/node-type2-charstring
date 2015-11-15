@@ -4,8 +4,11 @@
   "description": "A simple converter for Type2 charstrings in human readable and byte form.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"No testing specified\" && exit 1"
+    "test": "node test"
   },
   "author": "Pomax",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "fs-extra": "^0.26.2"
+  }
 }
