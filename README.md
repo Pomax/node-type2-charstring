@@ -1,10 +1,10 @@
-# node-type2-charstring
+# A human-readable Type2 Charstring to bytecode converter
 
 A simple converter for Type2 charstrings in human readable and byte form
 
 ## Installation
 
-This package is not on npm yet. Until it is, `require(wherever/you/put/it/index)` is what you want.
+`npm install type2-charstring`
 
 Note that currently only the "from legible to bytecode" conversion works, because that's the one most important to the work I'm currently doing.
 
