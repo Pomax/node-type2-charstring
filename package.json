@@ -1,11 +1,11 @@
 {
   "name": "type2-charstring",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A simple converter for Type2 charstrings in human readable and byte form.",
   "homepage": "https://github.com/Pomax/node-type2-charstring",
   "repository": {
     "type": "git",
-    "url" : "https://github.com/Pomax/node-type2-charstring"
+    "url": "https://github.com/Pomax/node-type2-charstring"
   },
   "bugs": {
     "url": "https://github.com/Pomax/node-type2-charstring/issues"
