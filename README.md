@@ -2,9 +2,11 @@
 
 A simple converter for Type2 charstrings in human readable and byte form
 
-## installation
+## Installation
 
-This package is not on npm yet
+This package is not on npm yet. Until it is, `require(wherever/you/put/it/index)` is what you want.
+
+Note that currently only the "from legible to bytecode" conversion works, because that's the one most important to the work I'm currently doing.
 
 ## Dev work
 
