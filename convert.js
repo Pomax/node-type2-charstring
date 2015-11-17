@@ -166,7 +166,6 @@ function flatten(arr) {
 module.exports = {
 	bindSubroutine: function(functor, bytes) {
 		gsubs[functor] = bytes;
-		this.computeSubroutineBias();
 	},
 
 	computeSubroutineBias: function() {
