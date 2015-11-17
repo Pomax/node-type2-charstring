@@ -29,7 +29,9 @@ module.exports.loadSheet = function(name) {
 	}
 }
 
-module.exports.fail = function(reason) {
+function fail(reason) {
 	console.error("ERROR: " + reason);
 	process.exit(1);
-}
+};
+
+module.exports.fail = fail;
