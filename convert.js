@@ -102,14 +102,16 @@ function convertInteger(v) {
  * @param  {[type]} v [description]
  * @return {[type]}   [description]
  */
+// we need to avoid rounding errors, so we need to "cut off" the integer as
+// string, instead of using arithmetics. Using maths, 3.1415 - 3 becomes the
+// rather cumbersome 0.14150000000000018, instead of 0.1415, for instance.
 function convertFloat(v) {
     var integer = v|0 ;
-	// we need to avoid rounding errors, so we need to "cut off" the integer as
-	// string, instead of using arithmetics. Using maths, 3.1415 - 3 becomes the
-	// rather cumbersome 0.14150000000000018, instead of 0.1415, for instance.
 	var pos = v.indexOf('.');
     v = v.substring(pos + 1);
-    var fraction = parseInt(v);
+    // encode the fraction in terms of how many 1/65535ths is closest
+    var tail = parseFloat("0." + v);
+    var fraction = Math.round(tail * 65535) | 0;
     return [255, (integer & 0xFF00) >> 8, integer & 0xFF, (fraction & 0xFF00) >> 8, fraction & 0xFF];
 }
 
