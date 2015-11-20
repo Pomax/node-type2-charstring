@@ -123,6 +123,8 @@ function convertOperator(v) {
 	if (ops[v]) return ops[v];
 	if (escops[v]) return [12, escops[v]];
 	if (gsubs[v]) return [convertInteger(Object.keys(gsubs).indexOf(v) - gsubsBias), 29];
+	// special op for subroutine index retrieval
+	if (v === "INDEX") return v;
 	throw new Error("unknown operator [" + v + "]");
 }
 
@@ -200,17 +202,25 @@ module.exports = {
 	},
 
 	toBytes: function(input, subroutines) {
-		var lines = input.replace(/\/\*[^*]\*\//g,'')
-		                .split(/\r?\n/)
+		var lines = input.split(/\r?\n/)
 		                .map(l => {
 		                 	return l.replace(/\/\/.*$/,'')
+		                 	        .replace(/#.*$/,'')
 		                 	        .replace(/,/g,' ')
 		                 	        .trim();
 		                })
 		                .filter(l => !!l)
 		                .join(' ');
 		var data = lines.split(/\s+/);
-		return flatten(data.map(toType2));
+		var bytes = flatten(data.map(toType2));
+
+		do {
+			var pos = bytes.indexOf("INDEX");
+			if (pos > -1) {
+				bytes.splice(pos, 1);
+			}
+		} while (pos > -1);
+		return bytes;
 	},
 
 	toString: function(byte, subroutines) {
