@@ -217,7 +217,8 @@ module.exports = {
 		do {
 			var pos = bytes.indexOf("INDEX");
 			if (pos > -1) {
-				bytes.splice(pos, 1);
+				// remove the INDEX marker, and the preceding subrouting operator
+				bytes.splice(pos-1, 2);
 			}
 		} while (pos > -1);
 		return bytes;
