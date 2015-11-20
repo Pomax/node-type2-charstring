@@ -200,7 +200,8 @@ module.exports = {
 	},
 
 	toBytes: function(input, subroutines) {
-		var lines = input.split(/\r?\n/)
+		var lines = input.replace(/\/\*[^*]\*\//g,'')
+		                .split(/\r?\n/)
 		                .map(l => {
 		                 	return l.replace(/\/\/.*$/,'')
 		                 	        .replace(/,/g,' ')
