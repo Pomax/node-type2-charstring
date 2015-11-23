@@ -69,6 +69,12 @@ var gsubs = {
 // recomputed eevery time the global subroutines are requested
 var gsubsBias = 0;
 
+var specials = {
+	"subr_index": "INDEX",
+	"subr_op": "12," + ops.callsubr,
+	"gsubr_op": "12," + ops.callgsubr,
+}
+
 /**
  * [convertInteger description]
  * @param  {[type]} v [description]
@@ -124,8 +130,8 @@ function convertOperator(v) {
 	if (ops[v]) return ops[v];
 	if (escops[v]) return [12, escops[v]];
 	if (gsubs[v]) return [convertInteger(Object.keys(gsubs).indexOf(v) - gsubsBias), 29];
-	// special op for subroutine index retrieval
-	if (v === "INDEX") return v;
+	// special ops for global and local subroutine op codes/indices only
+	if (specials[v]) return specials[v].split(',');
 	throw new Error("unknown operator [" + v + "]");
 }
 
@@ -216,10 +222,10 @@ module.exports = {
 		var bytes = flatten(data.map(toType2));
 
 		do {
-			var pos = bytes.indexOf("INDEX");
+			var pos = bytes.indexOf(specials["subr_index"]);
 			if (pos > -1) {
-				// remove the INDEX marker, and the preceding subrouting operator
-				bytes.splice(pos-1, 2);
+				// remove the INDEX marker, and the preceding subroutine operator
+				bytes.splice(pos-2, 2);
 			}
 		} while (pos > -1);
 		return bytes;

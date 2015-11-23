@@ -5,6 +5,11 @@
  * - Pomax
  */
 
+// FIXME: TODO: conditional subroutine jumping is a mess and
+//              needs a clean solution. It doesn't work atm due
+//              to how bias correction is applied only once the
+//              subroutines are requested. 
+
 // Standard operators, without the "escape" operator
 var ops = {
 	hstem:      1,
@@ -68,6 +73,12 @@ var gsubs = {
 // recomputed eevery time the global subroutines are requested
 var gsubsBias = 0;
 
+var specials = {
+	"subr_index": "subr_index",
+	"subr_op": ops.callsubr,
+	"gsubr_op": ops.callgsubr,
+}
+
 /**
  * [convertInteger description]
  * @param  {[type]} v [description]
@@ -123,8 +134,8 @@ function convertOperator(v) {
 	if (ops[v]) return ops[v];
 	if (escops[v]) return [12, escops[v]];
 	if (gsubs[v]) return [convertInteger(Object.keys(gsubs).indexOf(v) - gsubsBias), 29];
-	// special op for subroutine index retrieval
-	if (v === "INDEX") return v;
+	// special ops for global and local subroutine op codes/indices only
+	if (specials[v]) return specials[v].split(',');
 	throw new Error("unknown operator [" + v + "]");
 }
 
@@ -188,9 +199,13 @@ module.exports = {
 
 		var fix = function(arr) {
 			arr.forEach(function(val, pos) {
-				// FIXME: this is not the right way to do things,
-				//        but works for a low gsub count
+				// FIXME: this is not the right way to do things, but
+				//        works for a low gsub count. It pretends
+				//        that the preceding number is a 1 byte value.
 				if(val===29) { arr[pos-1] -= gsubsBias; }
+
+                // opcode with bias correction, for things like ifelse operations.
+				if(specials[val]) { arr[pos] = specials[val]; }
 			});
 		};
 
@@ -215,10 +230,10 @@ module.exports = {
 		var bytes = flatten(data.map(toType2));
 
 		do {
-			var pos = bytes.indexOf("INDEX");
+			var pos = bytes.indexOf(specials["subr_index"]);
 			if (pos > -1) {
-				// remove the INDEX marker, and the preceding subrouting operator
-				bytes.splice(pos-1, 2);
+				// remove the INDEX marker, and the preceding subroutine operator
+				bytes.splice(pos-2, 2);
 			}
 		} while (pos > -1);
 		return bytes;
