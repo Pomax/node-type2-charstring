@@ -218,13 +218,13 @@ module.exports = {
 
 	toBytes: function(input, subroutines) {
 		var lines = input.split(/\r?\n/)
-		                .map(l => {
+		                .map(function(l) {
 		                 	return l.replace(/\/\/.*$/,'')
 		                 	        .replace(/#.*$/,'')
 		                 	        .replace(/,/g,' ')
 		                 	        .trim();
 		                })
-		                .filter(l => !!l)
+		                .filter(function(l) { return !!l; })
 		                .join(' ');
 		var data = lines.split(/\s+/);
 		var bytes = flatten(data.map(toType2));

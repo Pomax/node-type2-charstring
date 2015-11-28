@@ -6,6 +6,11 @@
  * - Pomax
  */
 
+// FIXME: TODO: conditional subroutine jumping is a mess and
+//              needs a clean solution. It doesn't work atm due
+//              to how bias correction is applied only once the
+//              subroutines are requested. 
+
 // Standard operators, without the "escape" operator
 var ops = {
 	hstem:      1,
@@ -70,9 +75,9 @@ var gsubs = {
 var gsubsBias = 0;
 
 var specials = {
-	"subr_index": "INDEX",
-	"subr_op": "12," + ops.callsubr,
-	"gsubr_op": "12," + ops.callgsubr,
+	"subr_index": "subr_index",
+	"subr_op": ops.callsubr,
+	"gsubr_op": ops.callgsubr,
 }
 
 /**
@@ -195,9 +200,13 @@ module.exports = {
 
 		var fix = function(arr) {
 			arr.forEach(function(val, pos) {
-				// FIXME: this is not the right way to do things,
-				//        but works for a low gsub count
+				// FIXME: this is not the right way to do things, but
+				//        works for a low gsub count. It pretends
+				//        that the preceding number is a 1 byte value.
 				if(val===29) { arr[pos-1] -= gsubsBias; }
+
+                // opcode with bias correction, for things like ifelse operations.
+				if(specials[val]) { arr[pos] = specials[val]; }
 			});
 		};
 
@@ -210,13 +219,13 @@ module.exports = {
 
 	toBytes: function(input, subroutines) {
 		var lines = input.split(/\r?\n/)
-		                .map(l => {
+		                .map(function(l) {
 		                 	return l.replace(/\/\/.*$/,'')
 		                 	        .replace(/#.*$/,'')
 		                 	        .replace(/,/g,' ')
 		                 	        .trim();
 		                })
-		                .filter(l => !!l)
+		                .filter(function(l) { return !!l; })
 		                .join(' ');
 		var data = lines.split(/\s+/);
 		var bytes = flatten(data.map(toType2));
