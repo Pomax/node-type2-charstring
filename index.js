@@ -1,74 +1,27 @@
+var Reader = require("./reader");
+
+"use strict";
+
 /**
  * Type2 charstring converter
  * https://github.com/Pomax/node-type2-charstring
- * 
+ *
  * - Pomax
  */
 
 // FIXME: TODO: conditional subroutine jumping is a mess and
 //              needs a clean solution. It doesn't work atm due
 //              to how bias correction is applied only once the
-//              subroutines are requested. 
+//              subroutines are requested.
 
 // Standard operators, without the "escape" operator
-var ops = {
-	hstem:      1,
-	vstem:      3,
-	vmoveto:    4,
-	rlineto:    5,
-	hlineto:    6,
-	vlineto:    7,
-	rrcurveto:  8,
-	callsubr:   10,
-	return:     11,
-	endchar:    14,
-	hstemhm:    18,
-	hintmask:   19,
-	cntrmask:   20,
-	rmoveto:    21,
-	hmoveto:    22,
-	vstemhm:    23,
-	rcurveline: 24,
-	rlinecurve: 25,
-	wcurveto:   26,
-	hhcurveto:  27,
-	callgsubr:  29,
-	vhcurveto:  30,
-	hvcurveto:  31
-}
+var ops = require('./ops');
 
 // Escaped operators are all preceded by 12
-var escops = {
-	and:    3,
-	or:     4,
-	not:    5,
-	abs:    9,
-	add:    10,
-	sub:    11,
-	div:    12,
-	neg:    14,
-	eq:     15,
-	drop:   18,
-	put:    20,
-	get:    21,
-	ifelse: 22,
-	random: 23,
-	mul:    24,
-	sqrt:   26,
-	dup:    27,
-	exch:   28,
-	index:  29,
-	roll:   30,
-	hflex:  34,
-	flex:   35,
-	hflex1: 36,
-	flex1:  37
-}
+var escops = require('./escops');
 
 // global subroutines
-var gsubs = {
-
-}
+var gsubs = {};
 
 // recomputed eevery time the global subroutines are requested
 var gsubsBias = 0;
@@ -77,7 +30,7 @@ var specials = {
 	"subr_index": "subr_index",
 	"subr_op": ops.callsubr,
 	"gsubr_op": ops.callgsubr,
-}
+};
 
 /**
  * [convertInteger description]
@@ -216,7 +169,7 @@ module.exports = {
 		return fixed;
 	},
 
-	toBytes: function(input, subroutines) {
+	toBytes: function(input) {
 		var lines = input.split(/\r?\n/)
 		                .map(function(l) {
 		                 	return l.replace(/\/\/.*$/,'')
@@ -233,13 +186,26 @@ module.exports = {
 			var pos = bytes.indexOf(specials["subr_index"]);
 			if (pos > -1) {
 				// remove the INDEX marker, and the preceding subroutine operator
+				// FIXME: if we have more than 107 subroutines, this approach is flat
+				//        our wrong, since we will need to prune more than 2 bytes.
 				bytes.splice(pos-2, 2);
 			}
 		} while (pos > -1);
 		return bytes;
 	},
 
-	toString: function(byte, subroutines) {
-		throw new Error("not implemented.");
+	toString: function(bytes) {
+		throw new Error("Not currently implemented.");
+	},
+
+	getBounds: function(charstring) {
+		var reader = new Reader();
+		var x=65355, y=x, X=-x, Y=X;
+		reader.addEventListener("coordinate", function(x,y) {
+      if (x<x) { x=x; } else if (x>X) { X=x; }
+      if (y<y) { y=y; } else if (y>Y) { Y=Y; }
+		});
+		reader.process(charstring, subroutines);
+		return { xMin: x, yMin: y, xMax: X, yMax: Y };
 	}
 };

@@ -1,31 +1,88 @@
-// rotate(angle, ox, oy, x, y):143,12,20,142,12,20,141,12,20,140,12,20,139,12,20,139,12,21,32,29,144,12,20,139,12,21,33,29,145,12,20,142,12,21,140,12,21,12,11,146,12,20,143,12,21,141,12,21,12,11,147,12,20,146,12,21,145,12,21,12,24,148,12,20,147,12,21,145,12,21,12,24,149,12,20,142,12,21,148,12,21,149,12,21,12,14,12,10,12,10,150,12,20,146,12,21,145,12,21,12,24,151,12,20,147,12,21,144,12,21,12,24,152,12,20,141,12,21,151,12,21,152,12,21,12,10,12,10,153,12,20,12,21,139,12,21,140,12,21,141,12,21,152,12,21,153,11
-//
-// dependencies: sin(x), cos(x)
+// rotate(angle, ox, oy, x, y):144,138,12,30,12,27,12,27,139,29,12,28,140,29,146,137,12,30,12,27,147,140,12,30,12,28,12,27,148,140,12,30,146,138,12,30,12,28,12,11,12,28,145,138,12,30,12,28,12,11,12,27,144,140,12,30,12,28,12,27,145,140,12,30,143,141,12,30,12,27,144,140,12,30,12,28,12,27,147,140,12,30,143,138,12,30,150,137,12,30,12,27,151,140,12,30,149,140,12,30,12,27,152,140,12,30,144,140,12,30,12,14,12,24,143,140,12,30,12,24,12,10,12,10,145,140,12,30,12,24,143,140,12,30,12,24,12,10,12,10,142,138,12,30,144,140,12,30,11
 
-// When we start the stack contains: [angle, ox, oy, x, y],
-// so we put them onto the transient stack in argument order:
-4 put, 3 put, 2 put, 1 put, 0 put
+// stack: [angle, ox, oy, x, y]
 
-// compute the sin(x) and cos(x) of the provided angle
-0 get, sin(x), 5 put
-0 get, cos(x), 6 put
+  #
+  #  Set up the sin() and cos() values:
+  #
 
-// compute (x-ox) and (y-oy)
-3 get, 1 get, sub, 7 put
-4 get, 2 get, sub, 8 put
+  5 -1 roll       // => [ox, oy, x, y, angle]
+  dup, dup        // => [ox, oy, x, y, angle, angle, angle]
+  sin(x) exch cos(x)      // => [ox, oy, x, y, angle, sin(angle), cos(angle)]
 
-// nx = (x-ox) * cos(angle) + -((y-oy) * sin(angle)) + ox
-7 get, 6 get, mul, 9 put
-8 get, 6 get, mul, 10 put
-3 get, 9 get, 10 get, neg, add, add, 11 put
+  #
+  #  Set up the (x-ox) and (y-oy) values:
+  #
 
-// ny = (x-ox) * sin(angle) + (y-oy) * cos(angle) + oy
-7 get, 6 get, mul, 12 put
-8 get, 5 get, mul, 13 put
-2 get, 12 get, 13 get, add, add, 14 put
+  7 -2 roll             // => [x, y, angle, sin(angle), cos(angle), ox, oy]
+  dup, 8 1 roll       // => [oy, x, y, angle, sin(angle), cos(angle), ox, oy]
+  exch, dup, 9 1 roll   // => [ox, oy, x, y, angle, sin(angle), cos(angle), oy, ox]
+  7 -1 roll       // => [ox, oy, y, angle, sin(angle), cos(angle), oy, ox, x]
+  exch, sub       // => [ox, oy, y, angle, sin(angle), cos(angle), oy, x-ox]
+  exch          // => [ox, oy, y, angle, sin(angle), cos(angle), x-ox, oy]
+  6 -1 roll       // => [ox, oy, angle, sin(angle), cos(angle), x-ox, oy, y]
+  exch, sub       // => [ox, oy, angle, sin(angle), cos(angle), x-ox, y-oy]
 
-// restore the stack so that it's [angle, ox, oy, nx, ny]
-get 0, get 1, get 2, get 13, get 14
+  #
+  #  Duplicate (x-ox) and (y-oy), since we'll need each, twice:
+  #
 
-// return to previous control flow
+  dup           // => [ox, oy, angle, sin(angle), cos(angle), x-ox, y-oy, y-oy]
+  5 1 roll        // => [ox, oy, angle, y-oy, sin(angle), cos(angle), x-ox, y-oy]
+  exch          // => [ox, oy, angle, y-oy, sin(angle), cos(angle), y-oy, x-ox]
+  dup           // => [ox, oy, angle, y-oy, sin(angle), cos(angle), y-oy, x-ox, x-ox]
+  6 1 roll        // => [ox, oy, angle, x-ox, y-oy, sin(angle), cos(angle), y-oy, x-ox]
+  4 2 roll        // => [ox, oy, angle, x-ox, y-oy, y-oy, x-ox, sin(angle), cos(angle)]
+
+  #
+  #  Duplicate sin() and cos(), since we'll need each, twice, too:
+  #
+
+  dup           // => [ox, oy, angle, x-ox, y-oy, y-oy, x-ox, sin(angle), cos(angle), cos(angle)]
+  5 1 roll        // => [ox, oy, angle, x-ox, y-oy, cos(angle), y-oy, x-ox, sin(angle), cos(angle)]
+  exch          // => [ox, oy, angle, x-ox, y-oy, cos(angle), y-oy, x-ox, cos(angle), sin(angle)]
+  dup           // => [ox, oy, angle, x-ox, y-oy, cos(angle), y-oy, x-ox, cos(angle), sin(angle), sin(angle)]
+  8 1 roll        // => [ox, oy, angle, sin(angle), x-ox, y-oy, cos(angle), y-oy, x-ox, cos(angle), sin(angle)]
+  4 -1 roll       // => [ox, oy, angle, sin(angle), x-ox, y-oy, cos(angle), x-ox, cos(angle), sin(angle), y-oy]
+
+  #
+  #  Duplicate ox and oy, and put them in the right place for computing x' and y':
+  #
+
+  11 -2 roll        // => [angle, sin(angle), x-ox, y-oy, cos(angle), x-ox, cos(angle), sin(angle), y-oy, ox, oy]
+  dup           // => [angle, sin(angle), x-ox, y-oy, cos(angle), x-ox, cos(angle), sin(angle), y-oy, ox, oy, oy]
+  12 1 roll       // => [oy, angle, sin(angle), x-ox, y-oy, cos(angle), x-ox, cos(angle), sin(angle), y-oy, ox, oy]
+  10 1 roll       // => [oy, angle, oy, sin(angle), x-ox, y-oy, cos(angle), x-ox, cos(angle), sin(angle), y-oy, ox]
+  dup           // => [oy, angle, oy, sin(angle), x-ox, y-oy, cos(angle), x-ox, cos(angle), sin(angle), y-oy, ox, ox]
+  13 1 roll       // => [ox, oy, angle, oy, sin(angle), x-ox, y-oy, cos(angle), x-ox, cos(angle), sin(angle), y-oy, ox]
+  5 1 roll        // => [ox, oy, angle, oy, sin(angle), x-ox, y-oy, cos(angle), ox, x-ox, cos(angle), sin(angle), y-oy]
+
+  #
+  #  Finally, our prep work is done; form x' = (x-ox) * cos(a) - (y-oy) * sin(a) + ox:
+  #
+
+  neg, mul  // => [ox, oy, angle, oy, sin(angle), x-ox, y-oy, cos(angle), ox, x-ox, cos(angle), -(y-oy) * sin(angle)]
+  4 1 roll  // => [ox, oy, angle, oy, sin(angle), x-ox, y-oy, cos(angle), -(y-oy) * sin(angle), ox, x-ox, cos(angle)]
+  mul     // => [ox, oy, angle, oy, sin(angle), x-ox, y-oy, cos(angle), -(y-oy) * sin(angle), ox, (x-ox) * cos(angle)]
+  add, add  // => [ox, oy, angle, oy, sin(angle), x-ox, y-oy, cos(angle), x']
+  6 1 roll  // => [ox, oy, angle, x', oy, sin(angle), x-ox, y-oy, cos(angle)]
+
+  #
+  #  Then form y' = (x-ox) * sin(a) + (y-oy) * cos(a) + oy:
+  #
+
+  mul     // => [ox, oy, angle, x', oy, sin(angle), x-ox, (y-oy) * cos(angle)]
+  4 1 roll  // => [ox, oy, angle, x', (y-oy) * cos(angle), oy, sin(angle), x-ox]
+  mul     // => [ox, oy, angle, x', (y-oy) * cos(angle), oy, (x-ox) * sin(angle)]
+  add, add  // => [ox, oy, angle, x', y']
+
+
+  #
+  #  Rearrange the data so that the stack is [angle, ox, oy, x', y']:
+  #
+
+  3 -1 roll // => [ox, oy, x', y', angle]
+  5 1 roll  // => [angle, ox, oy, x', y']
+
 return
+

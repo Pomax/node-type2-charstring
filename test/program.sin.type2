@@ -1,37 +1,20 @@
-// sin(x):12,27,139,12,20,255,0,3,5,135,12,27,140,12,20,143,141,12,20,255,0,49,1,92,142,12,20,12,28,12,11,139,12,21,12,24,141,12,21,12,24,143,12,20,142,12,21,143,12,21,12,11,12,12,141,12,21,12,24,11
+// sin(x): 12,27,140,12,28,12,11,12,24,143,12,24,12,27,144,12,28,12,11,12,12,143,12,24,11
 
-// add 'x' to the transient stack, without losing it from the main stack
-dup, 0, put
+// start = [x]
 
-// add '3.1415' to the transient stack, without losing it from the main stack
-3.1415, dup, 1, put
+  // => [x, (1-x)]
+  dup, 1, exch, sub
 
-// cache '4'
-4, 2, put
+  // => [4x(1-x)]
+  mul, 4, mul
 
-// cache pi squared
-49.348, 3, put
+  // => [4x(1-x), 5 - 4x(1-x)]
+  dup, 5, exch, sub
 
-// form pi-x
-exch, sub
+  // => [4x(1-x) / 5 - 4x(1-x)]
+  div
 
-// form x(pi-x):
-0, get, mul
+  // => [4 * ...]
+  4, mul
 
-// form 4x(pi-x):
-2, get, mul
-
-// cache the value:
-4, put
-
-// form 49.348 - 4x(pi-x):
-3, get, 4, get, sub
-
-// form division:
-div
-
-// almost done: all we need to do now is form 4*(...) and we're done:
-2, get, mul
-
-// return to previous control flow
 return

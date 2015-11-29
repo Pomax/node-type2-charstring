@@ -20,7 +20,7 @@ module.exports.loadSheet = function(name) {
 		fail("charstring for "+functor+" did not match its verification print.");
 	}
 
-    type2Charstring.bindSubroutine(functor, bytes);
+  type2Charstring.bindSubroutine(functor, bytes);
 
 	return {
 		sheet: sheet,
