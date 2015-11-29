@@ -198,14 +198,15 @@ module.exports = {
 		throw new Error("Not currently implemented.");
 	},
 
-	getBounds: function(charstring) {
+	getBounds: function(charstring, subroutines) {
+	  subroutines = subroutines || this.getSubroutines();
 		var reader = new Reader();
 		var x=65355, y=x, X=-x, Y=X;
 		reader.addEventListener("coordinate", function(x,y) {
       if (x<x) { x=x; } else if (x>X) { X=x; }
       if (y<y) { y=y; } else if (y>Y) { Y=Y; }
 		});
-		reader.process(charstring, this.getSubroutines());
+		reader.process(charstring, subroutines);
 		return { xMin: x, yMin: y, xMax: X, yMax: Y };
 	}
 };
