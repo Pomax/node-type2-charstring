@@ -48,10 +48,10 @@ Reader.prototype = {
       // console.log('<' + code + '> :: [' + this.stack.join(',') + '] :: [' + this.transient.join(',') + ']');
 
       if (ops[code]) {
-        this.processOperation(bytes, code, this.stack, subroutines);
+        this.processOperation(bytes, code, subroutines);
       }
       else if (escops[code]) {
-        this.processOperation(bytes, code, this.stack, subroutines);
+        this.processOperation(bytes, code, subroutines);
       }
       else {
         this.stack.push(code);
@@ -128,88 +128,88 @@ Reader.prototype = {
     return routine;
   },
 
-  processOperation: function(bytes, code, stack, subroutines) {
+  processOperation: function(bytes, code, subroutines) {
     var clearstack = true;
 
     // Regular operations
     if (code === "rmoveto") {
-      this.x += stack[0];
-      this.y += stack[1];
+      this.x += this.stack[0];
+      this.y += this.stack[1];
       this.generateCoordinateEvent(code);
     }
 
     else if (code === "hmoveto") {
-      this.x += stack[0];
+      this.x += this.stack[0];
       this.generateCoordinateEvent(code);
     }
 
     else if (code === "vmoveto") {
-      this.y += stack[0];
+      this.y += this.stack[0];
       this.generateCoordinateEvent(code);
     }
 
     else if (code === "rlineto") {
-      var offset = (stack.length%2);
-      while(stack.length>1) {
-        this.x += stack.splice(offset,1)[0];
-        this.y += stack.splice(offset,1)[0];
+      var offset = (this.stack.length%2);
+      while(this.stack.length>1) {
+        this.x += this.stack.splice(offset,1)[0];
+        this.y += this.stack.splice(offset,1)[0];
         this.generateCoordinateEvent(code);
       }
     }
 
     else if (code === "hlineto") {
-      var type = (stack.length%2);
+      var type = (this.stack.length%2);
       if (type) {
-        this.x += stack.splice(0,1)[0];
+        this.x += this.stack.splice(0,1)[0];
         this.generateCoordinateEvent(code);
-        while(stack.length) {
+        while(this.stack.length) {
           // note the reversal!
-          this.y += stack.splice(0,1)[0];
-          this.x += stack.splice(0,1)[0];
+          this.y += this.stack.splice(0,1)[0];
+          this.x += this.stack.splice(0,1)[0];
           this.generateCoordinateEvent(code);
         }
       } else {
-        while(stack.length) {
-          this.x += stack.splice(0,1)[0];
-          this.y += stack.splice(0,1)[0];
+        while(this.stack.length) {
+          this.x += this.stack.splice(0,1)[0];
+          this.y += this.stack.splice(0,1)[0];
           this.generateCoordinateEvent(code);
         }
       }
     }
 
     else if (code === "vlineto") {
-      var type = (stack.length%2);
+      var type = (this.stack.length%2);
       if (type) {
-        this.y += stack.splice(0,1)[0];
+        this.y += this.stack.splice(0,1)[0];
         this.generateCoordinateEvent(code);
-        while(stack.length) {
-          this.x += stack.splice(0,1)[0];
-          this.y += stack.splice(0,1)[0];
+        while(this.stack.length) {
+          this.x += this.stack.splice(0,1)[0];
+          this.y += this.stack.splice(0,1)[0];
           this.generateCoordinateEvent(code);
         }
       } else {
-        while(stack.length) {
+        while(this.stack.length) {
           // note the reversal!
-          this.y += stack.splice(0,1)[0];
-          this.x += stack.splice(0,1)[0];
+          this.y += this.stack.splice(0,1)[0];
+          this.x += this.stack.splice(0,1)[0];
           this.generateCoordinateEvent(code);
         }
       }
     }
 
     else if (code === "rrcurveto") {
-      while(stack.length>6) {
+      while(this.stack.length>6) {
         // c1
-        this.x += stack.splice(offset,1)[0];
-        this.y += stack.splice(offset,1)[0];
+        this.x += this.stack.splice(offset,1)[0];
+        this.y += this.stack.splice(offset,1)[0];
         this.generateCoordinateEvent(code);
         // c2
-        this.x += stack.splice(offset,1)[0];
-        this.y += stack.splice(offset,1)[0];
+        this.x += this.stack.splice(offset,1)[0];
+        this.y += this.stack.splice(offset,1)[0];
         this.generateCoordinateEvent(code);
         // end point
-        this.x += stack.splice(offset,1)[0];
-        this.y += stack.splice(offset,1)[0];
+        this.x += this.stack.splice(offset,1)[0];
+        this.y += this.stack.splice(offset,1)[0];
         this.generateCoordinateEvent(code);
       }
     }
@@ -220,100 +220,100 @@ Reader.prototype = {
 
       // special program operations
       if(code === "abs") {
-        var v = stack.pop();
-        stack.push(Math.abs(v));
+        var v = this.stack.pop();
+        this.stack.push(Math.abs(v));
       }
 
       else if(code === "add") {
-        var v2 = stack.pop();
-        var v1 = stack.pop();
-        stack.push(v1 + v2);
+        var v2 = this.stack.pop();
+        var v1 = this.stack.pop();
+        this.stack.push(v1 + v2);
       }
 
       else if(code === "sub") {
-        var v2 = stack.pop();
-        var v1 = stack.pop();
-        stack.push(v1 - v2);
+        var v2 = this.stack.pop();
+        var v1 = this.stack.pop();
+        this.stack.push(v1 - v2);
       }
 
       else if(code === "div") {
-        var v2 = stack.pop();
-        var v1 = stack.pop();
-        stack.push(v1 / v2);
+        var v2 = this.stack.pop();
+        var v1 = this.stack.pop();
+        this.stack.push(v1 / v2);
       }
 
       else if(code === "neg") {
-        var v = stack.pop();
-        stack.push(-v);
+        var v = this.stack.pop();
+        this.stack.push(-v);
       }
 
       else if(code === "random") {
-        stack.push(Math.random());
+        this.stack.push(Math.random());
       }
 
       else if(code === "mul") {
-        var v2 = stack.pop();
-        var v1 = stack.pop();
-        stack.push(v1 * v2);
+        var v2 = this.stack.pop();
+        var v1 = this.stack.pop();
+        this.stack.push(v1 * v2);
       }
 
       else if(code === "sqrt") {
-        var v = stack.pop();
-        stack.push(Math.sqrt(v));
+        var v = this.stack.pop();
+        this.stack.push(Math.sqrt(v));
       }
 
       else if(code === "drop") {
-        stack.pop();
+        this.stack.pop();
       }
 
       else if(code === "exch") {
-        var v2 = stack.pop();
-        var v1 = stack.pop();
-        stack.push(v2);
-        stack.push(v1);
+        var v2 = this.stack.pop();
+        var v1 = this.stack.pop();
+        this.stack.push(v2);
+        this.stack.push(v1);
       }
 
       else if(code === "index") {
-        var i = stack.pop();
+        var i = this.stack.pop();
         // defined behaviour:
-        if (i<0) stack.push(stack[stack.length-1]);
+        if (i<0) this.stack.push(this.stack[this.stack.length-1]);
         // undefined behaviour:
-        if (i>stack.lenght) stack.push(Math.random());
+        if (i>this.stack.lenght) this.stack.push(Math.random());
         // normal behaviour
-        var v = stack[stack.lenght - i];
-        stack.push(v);
+        var v = this.stack[this.stack.lenght - i];
+        this.stack.push(v);
       }
 
       else if(code === "roll") {
-        var J = stack.pop();
-        var N = stack.pop();
-        var slice = stack.splice(-N);
+        var J = this.stack.pop();
+        var N = this.stack.pop();
+        var slice = this.stack.splice(-N);
         var s1 = slice.splice(-J);
-        stack = stack.concat(s1).concat(slice);
+        this.stack = this.stack.concat(s1).concat(slice);
       }
 
       else if(code === "dup") {
-        var v = stack.pop();
-        stack.push(v);
-        stack.push(v);
+        var v = this.stack.pop();
+        this.stack.push(v);
+        this.stack.push(v);
       }
 
       // ...
 
       else if(code === "put") {
-        var i = stack.pop();
-        var v = stack.pop();
+        var i = this.stack.pop();
+        var v = this.stack.pop();
         this.transient[i] = v;
       }
 
       else if(code === "get") {
-        var i = stack.pop();
+        var i = this.stack.pop();
         this.stack.push(this.transient[i]);
       }
 
 
       else if(code === "callgsubr") {
-        var v = stack.pop();
+        var v = this.stack.pop();
         var routine = this.getSubroutine(v, subroutines);
         // add this into the bytes array
         do {

@@ -207,6 +207,12 @@ module.exports = {
       if (_y<y) { y=_y; } else if (_y>Y) { Y=_y; }
 		});
 		reader.process(charstring, subroutines);
-		return { xMin: x, yMin: y, xMax: X, yMax: Y };
+		// make sure to round these values!
+		return {
+			xMin: Math.round(x),
+			yMin: Math.round(y),
+			xMax: Math.round(X),
+			yMax: Math.round(Y)
+		};
 	}
 };
