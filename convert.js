@@ -306,6 +306,7 @@ Reader.prototype = {
 
   process: function(charstring, subroutines) {
     this.reset();
+    charstring = charstring.slice();
     this.parse(charstring, subroutines);
   },
 
