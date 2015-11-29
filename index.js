@@ -205,7 +205,7 @@ module.exports = {
       if (x<x) { x=x; } else if (x>X) { X=x; }
       if (y<y) { y=y; } else if (y>Y) { Y=Y; }
 		});
-		reader.process(charstring, subroutines);
+		reader.process(charstring, this.getSubroutines());
 		return { xMin: x, yMin: y, xMax: X, yMax: Y };
 	}
 };
