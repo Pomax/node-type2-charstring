@@ -203,9 +203,9 @@ module.exports = {
 	  subroutines = subroutines || this.getSubroutines();
 		var reader = new Reader();
 		var x=65355, y=x, X=-x, Y=X;
-		reader.addEventListener("coordinate", function(x,y) {
-      if (x<x) { x=x; } else if (x>X) { X=x; }
-      if (y<y) { y=y; } else if (y>Y) { Y=Y; }
+		reader.addEventListener("coordinate", function(opcode,_x,_y) {
+      if (_x<x) { x=_x; } else if (_x>X) { X=_x; }
+      if (_y<y) { y=_y; } else if (_y>Y) { Y=_y; }
 		});
 		reader.process(charstring, subroutines);
 		return { xMin: x, yMin: y, xMax: X, yMax: Y };
