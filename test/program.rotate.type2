@@ -1,4 +1,3 @@
-// rotate(angle, ox, oy, x, y):144,138,12,30,12,27,12,27,139,29,12,28,140,29,146,137,12,30,12,27,147,140,12,30,12,28,12,27,148,140,12,30,146,138,12,30,12,28,12,11,12,28,145,138,12,30,12,28,12,11,12,27,144,140,12,30,12,28,12,27,145,140,12,30,143,141,12,30,12,27,144,140,12,30,12,28,12,27,147,140,12,30,143,138,12,30,150,137,12,30,12,27,151,140,12,30,149,140,12,30,12,27,152,140,12,30,144,140,12,30,12,14,12,24,143,140,12,30,12,24,12,10,12,10,145,140,12,30,12,24,143,140,12,30,12,24,12,10,12,10,142,138,12,30,144,140,12,30,11
 
 // stack: [angle, ox, oy, x, y]
 
@@ -8,81 +7,53 @@
 
   5 -1 roll       // => [ox, oy, x, y, angle]
   dup, dup        // => [ox, oy, x, y, angle, angle, angle]
-  sin(x) exch cos(x)      // => [ox, oy, x, y, angle, sin(angle), cos(angle)]
+  sin exch cos    // => [ox, oy, x, y, angle, sin(angle), cos(angle)]
+
+  # cache them.
+  5 put, 4 put
 
   #
   #  Set up the (x-ox) and (y-oy) values:
   #
 
-  7 -2 roll             // => [x, y, angle, sin(angle), cos(angle), ox, oy]
-  dup, 8 1 roll       // => [oy, x, y, angle, sin(angle), cos(angle), ox, oy]
-  exch, dup, 9 1 roll   // => [ox, oy, x, y, angle, sin(angle), cos(angle), oy, ox]
-  7 -1 roll       // => [ox, oy, y, angle, sin(angle), cos(angle), oy, ox, x]
-  exch, sub       // => [ox, oy, y, angle, sin(angle), cos(angle), oy, x-ox]
-  exch          // => [ox, oy, y, angle, sin(angle), cos(angle), x-ox, oy]
-  6 -1 roll       // => [ox, oy, angle, sin(angle), cos(angle), x-ox, oy, y]
-  exch, sub       // => [ox, oy, angle, sin(angle), cos(angle), x-ox, y-oy]
+  5 1 roll             // => [angle, ox, oy, x, y]
+  exch                 // => [angle, ox, oy, y, x]
+  5 1 roll             // => [x, angle, ox, oy, y]
+  exch                 // => [x, angle, ox, y, oy]
+  dup, 2 put           // => [x, angle, ox, y, oy] + [copy of oy cached]
+  sub                  // => [x, angle, ox, y-oy]
+  7 put                // => [x, angle, ox] + [y-oy cached]
+
+  3 -1 roll            // => [angle, ox, x]
+  exch                 // => [angle, x, ox]
+  dup, 1 put           // => [angle, x, ox] + [copy of ox cached]
+  sub                  // => [angle, x-ox]
+  6 put                // => [angle] + [x-ox cached]
+
+  3 put                // => [] + [angle cached]
 
   #
-  #  Duplicate (x-ox) and (y-oy), since we'll need each, twice:
+  # Compute x' = ox + (x-ox) cos(a) - (y-oy) sin(a)
   #
-
-  dup           // => [ox, oy, angle, sin(angle), cos(angle), x-ox, y-oy, y-oy]
-  5 1 roll        // => [ox, oy, angle, y-oy, sin(angle), cos(angle), x-ox, y-oy]
-  exch          // => [ox, oy, angle, y-oy, sin(angle), cos(angle), y-oy, x-ox]
-  dup           // => [ox, oy, angle, y-oy, sin(angle), cos(angle), y-oy, x-ox, x-ox]
-  6 1 roll        // => [ox, oy, angle, x-ox, y-oy, sin(angle), cos(angle), y-oy, x-ox]
-  4 2 roll        // => [ox, oy, angle, x-ox, y-oy, y-oy, x-ox, sin(angle), cos(angle)]
+  7 get 4 get neg mul, // (y-oy) * -sin(a)
+  6 get 5 get mul,     // (x-ox) * cos(a)
+  1 get,               // ox
+  add, add,            // x' = .. + .. + ..
+  8 put                // [] + [x' cached]
 
   #
-  #  Duplicate sin() and cos(), since we'll need each, twice, too:
+  # Compute y' = oy + (x-ox) sin(a) + (y-oy) cos(a)
   #
-
-  dup           // => [ox, oy, angle, x-ox, y-oy, y-oy, x-ox, sin(angle), cos(angle), cos(angle)]
-  5 1 roll        // => [ox, oy, angle, x-ox, y-oy, cos(angle), y-oy, x-ox, sin(angle), cos(angle)]
-  exch          // => [ox, oy, angle, x-ox, y-oy, cos(angle), y-oy, x-ox, cos(angle), sin(angle)]
-  dup           // => [ox, oy, angle, x-ox, y-oy, cos(angle), y-oy, x-ox, cos(angle), sin(angle), sin(angle)]
-  8 1 roll        // => [ox, oy, angle, sin(angle), x-ox, y-oy, cos(angle), y-oy, x-ox, cos(angle), sin(angle)]
-  4 -1 roll       // => [ox, oy, angle, sin(angle), x-ox, y-oy, cos(angle), x-ox, cos(angle), sin(angle), y-oy]
+  7 get 5 get mul,     // (y-oy) * cos(a)
+  6 get 4 get mul,     // (x-ox) * sin(a)
+  2 get,               // oy
+  add, add,            // y' = .. + .. + ..
+  9 put                // [] + [y' cached]
 
   #
-  #  Duplicate ox and oy, and put them in the right place for computing x' and y':
+  # replace [angle, ox, oy, x', y']
   #
-
-  11 -2 roll        // => [angle, sin(angle), x-ox, y-oy, cos(angle), x-ox, cos(angle), sin(angle), y-oy, ox, oy]
-  dup           // => [angle, sin(angle), x-ox, y-oy, cos(angle), x-ox, cos(angle), sin(angle), y-oy, ox, oy, oy]
-  12 1 roll       // => [oy, angle, sin(angle), x-ox, y-oy, cos(angle), x-ox, cos(angle), sin(angle), y-oy, ox, oy]
-  10 1 roll       // => [oy, angle, oy, sin(angle), x-ox, y-oy, cos(angle), x-ox, cos(angle), sin(angle), y-oy, ox]
-  dup           // => [oy, angle, oy, sin(angle), x-ox, y-oy, cos(angle), x-ox, cos(angle), sin(angle), y-oy, ox, ox]
-  13 1 roll       // => [ox, oy, angle, oy, sin(angle), x-ox, y-oy, cos(angle), x-ox, cos(angle), sin(angle), y-oy, ox]
-  5 1 roll        // => [ox, oy, angle, oy, sin(angle), x-ox, y-oy, cos(angle), ox, x-ox, cos(angle), sin(angle), y-oy]
-
-  #
-  #  Finally, our prep work is done; form x' = (x-ox) * cos(a) - (y-oy) * sin(a) + ox:
-  #
-
-  neg, mul  // => [ox, oy, angle, oy, sin(angle), x-ox, y-oy, cos(angle), ox, x-ox, cos(angle), -(y-oy) * sin(angle)]
-  4 1 roll  // => [ox, oy, angle, oy, sin(angle), x-ox, y-oy, cos(angle), -(y-oy) * sin(angle), ox, x-ox, cos(angle)]
-  mul     // => [ox, oy, angle, oy, sin(angle), x-ox, y-oy, cos(angle), -(y-oy) * sin(angle), ox, (x-ox) * cos(angle)]
-  add, add  // => [ox, oy, angle, oy, sin(angle), x-ox, y-oy, cos(angle), x']
-  6 1 roll  // => [ox, oy, angle, x', oy, sin(angle), x-ox, y-oy, cos(angle)]
-
-  #
-  #  Then form y' = (x-ox) * sin(a) + (y-oy) * cos(a) + oy:
-  #
-
-  mul     // => [ox, oy, angle, x', oy, sin(angle), x-ox, (y-oy) * cos(angle)]
-  4 1 roll  // => [ox, oy, angle, x', (y-oy) * cos(angle), oy, sin(angle), x-ox]
-  mul     // => [ox, oy, angle, x', (y-oy) * cos(angle), oy, (x-ox) * sin(angle)]
-  add, add  // => [ox, oy, angle, x', y']
-
-
-  #
-  #  Rearrange the data so that the stack is [angle, ox, oy, x', y']:
-  #
-
-  3 -1 roll // => [ox, oy, x', y', angle]
-  5 1 roll  // => [angle, ox, oy, x', y']
+  3 get, 1 get, 2 get, 8 get, 9 get
 
 return
 

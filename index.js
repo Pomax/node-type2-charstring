@@ -1,5 +1,3 @@
-var Reader = require("./reader");
-
 "use strict";
 
 /**
@@ -131,6 +129,8 @@ function flatten(arr) {
 }
 
 module.exports = {
+	Reader: require("./reader"),
+
 	bindSubroutine: function(functor, bytes) {
 		gsubs[functor] = bytes;
 	},
@@ -200,7 +200,7 @@ module.exports = {
 
 	getBounds: function(charstring, subroutines) {
 	  subroutines = subroutines || this.getSubroutines();
-		var reader = new Reader();
+		var reader = new this.Reader();
 		var x=65355, y=x, X=-x, Y=X;
 		reader.addEventListener("coordinate", function(opcode,_x,_y) {
       if (_x<x) { x=_x; } else if (_x>X) { X=_x; }

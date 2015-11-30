@@ -1,6 +1,4 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Type2Convert = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var Reader = require("./reader");
-
 "use strict";
 
 /**
@@ -132,6 +130,8 @@ function flatten(arr) {
 }
 
 module.exports = {
+	Reader: require("./reader"),
+
 	bindSubroutine: function(functor, bytes) {
 		gsubs[functor] = bytes;
 	},
@@ -201,7 +201,7 @@ module.exports = {
 
 	getBounds: function(charstring, subroutines) {
 	  subroutines = subroutines || this.getSubroutines();
-		var reader = new Reader();
+		var reader = new this.Reader();
 		var x=65355, y=x, X=-x, Y=X;
 		reader.addEventListener("coordinate", function(opcode,_x,_y) {
       if (_x<x) { x=_x; } else if (_x>X) { X=_x; }
@@ -583,7 +583,7 @@ Reader.prototype = {
       }
 
       else if(code === "get") {
-        var i = this.stack.pop();
+        var i = (this.stack.pop())|0;
         this.stack.push(this.transient[i]);
       }
 

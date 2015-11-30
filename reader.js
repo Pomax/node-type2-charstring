@@ -307,7 +307,7 @@ Reader.prototype = {
       }
 
       else if(code === "get") {
-        var i = this.stack.pop();
+        var i = (this.stack.pop())|0;
         this.stack.push(this.transient[i]);
       }
 

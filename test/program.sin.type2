@@ -1,20 +1,28 @@
-// sin(x): 12,27,140,12,28,12,11,12,24,143,12,24,12,27,144,12,28,12,11,12,12,143,12,24,11
+// prep:
 
-// start = [x]
+ 0      0 put
+ 0.3    1 put
+ 0.59   2 put
+ 0.8    3 put
+ 0.95   4 put
+ 1      5 put
+ 0.95   6 put
+ 0.8    7 put
+ 0.58   8 put
+ 0.3    9 put
+ 0     10 put
+-0.3   11 put
+-0.58  12 put
+-0.8   13 put
+-0.95  14 put
+-1     15 put
+-0.95  16 put
+-0.8   17 put
+-0.59  18 put
+-0.3   19 put
+0      20 put
 
-  // => [x, (1-x)]
-  dup, 1, exch, sub
-
-  // => [4x(1-x)]
-  mul, 4, mul
-
-  // => [4x(1-x), 5 - 4x(1-x)]
-  dup, 5, exch, sub
-
-  // => [4x(1-x) / 5 - 4x(1-x)]
-  div
-
-  // => [4 * ...]
-  4, mul
+10 mul // -> [10 * x]
+get    // -> retrieve LUT value
 
 return
