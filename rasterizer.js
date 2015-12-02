@@ -9,7 +9,8 @@ svg.setAttribute("style", "width: "+w+"px; height: "+h+"px");
 
 
 var text = document.querySelector("textarea");
-var reader = new Type2Convert.Reader();
+var type2 = new Type2();
+var reader = new Type2.Reader();
 
 var customFunctions = [
   "offset",
@@ -74,8 +75,8 @@ function handleSheet(name) {
                         .join(" ")
                         .split(":")
                         .map(function(f) { return f.trim(); });
-    var bytes = Type2Convert.toBytes(parts[0]);
-    Type2Convert.bindSubroutine(name, bytes);
+    var bytes = type2.toBytes(parts[0]);
+    type2.bindSubroutine(name, bytes);
     handleSheets();
   }
 }
@@ -85,7 +86,7 @@ function handleSheet(name) {
  */
 function handleSheets() {
   if (customFunctions.length === 0) {
-    subroutines = Type2Convert.getSubroutines();
+    subroutines = type2.getSubroutines();
     return renderCharstring();
   }
   var thing = customFunctions.splice(0,1)[0];
@@ -98,7 +99,7 @@ function renderCharstring() {
   labels = [];
 
   var instructions = document.querySelector("textarea").value;
-  var charstring = Type2Convert.toBytes(instructions);
+  var charstring = type2.toBytes(instructions);
   reader.process(charstring, subroutines);
   path.push('z');
 

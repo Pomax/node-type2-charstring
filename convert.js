@@ -130,7 +130,7 @@ var Type2 = function() {
   this.gsubsBias = 0;
 };
 
-Type2.reader = require("./reader");
+Type2.Reader = require("./reader");
 
 Type2.prototype = {
 	bindSubroutine: function(functor, bytes) {
