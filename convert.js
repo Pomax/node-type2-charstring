@@ -1,4 +1,4 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Type2Convert = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Type2 = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
 
 /**
@@ -18,12 +18,6 @@ var ops = require('./ops');
 
 // Escaped operators are all preceded by 12
 var escops = require('./escops');
-
-// global subroutines
-var gsubs = {};
-
-// recomputed eevery time the global subroutines are requested
-var gsubsBias = 0;
 
 var specials = {
 	"subr_index": "subr_index",
@@ -82,10 +76,10 @@ function convertFloat(v) {
  * @param  {[type]} v [description]
  * @return {[type]}   [description]
  */
-function convertOperator(v) {
+function convertOperator(v, gsubs, bias) {
 	if (ops[v]) return ops[v];
 	if (escops[v]) return [12, escops[v]];
-	if (gsubs[v]) return [convertInteger(Object.keys(gsubs).indexOf(v) - gsubsBias), 29];
+	if (gsubs[v]) return [convertInteger(Object.keys(gsubs).indexOf(v) - bias), 29];
 	// special ops for global and local subroutine op codes/indices only
 	if (specials[v]) return specials[v].split(',');
 	throw new Error("unknown operator [" + v + "]");
@@ -96,14 +90,14 @@ function convertOperator(v) {
  * @param  {[type]} v [description]
  * @return {[type]}   [description]
  */
-function toType2(v) {
+function toType2(v, gsubs, bias) {
 	if (parseInt(v) == v) {
 		return convertInteger(v);
 	}
 	if (parseFloat(v) == v) {
 		return convertFloat(v);
 	}
-	return convertOperator(v);
+	return convertOperator(v, gsubs, bias);
 }
 
 /**
@@ -129,11 +123,18 @@ function flatten(arr) {
 	return flattened;
 }
 
-module.exports = {
-	Reader: require("./reader"),
+var Type2 = function() {
+  // global subroutines
+  this.gsubs = {};
+  // recomputed eevery time the global subroutines are requested
+  this.gsubsBias = 0;
+};
 
+Type2.reader = require("./reader");
+
+Type2.prototype = {
 	bindSubroutine: function(functor, bytes) {
-		gsubs[functor] = bytes;
+		this.gsubs[functor] = bytes;
 	},
 
 	computeSubroutineBias: function() {
@@ -141,22 +142,23 @@ module.exports = {
 		// index requested, or whether it's a global single value. For low
 		// count subroutines, it doesn't really matter, but it's nicer to do
 		// this the right way. See Adobe Tech Note 5176, page 25, for more.
-		var count = Object.keys(gsubs).length;
+		var count = Object.keys(this.gsubs).length;
 		var bias = 32768;
 		if (count < 33900) bias = 1131;
 		if (count < 1240) bias = 107;
-		gsubsBias = bias;
+		this.gsubsBias = bias;
 	},
 
 	getSubroutines: function() {
 		this.computeSubroutineBias();
 
+    var bias = this.gsubsBias;
 		var fix = function(arr) {
 			arr.forEach(function(val, pos) {
 				// FIXME: this is not the right way to do things, but
 				//        works for a low gsub count. It pretends
 				//        that the preceding number is a 1 byte value.
-				if(val===29) { arr[pos-1] -= gsubsBias; }
+				if(val===29) { arr[pos-1] -= bias; }
 
                 // opcode with bias correction, for things like ifelse operations.
 				if(specials[val]) { arr[pos] = specials[val]; }
@@ -164,7 +166,7 @@ module.exports = {
 		};
 
 		// apply the bias fix the gsubr operands
-		var fixed = JSON.parse(JSON.stringify(gsubs));
+		var fixed = JSON.parse(JSON.stringify(this.gsubs));
 		var keys = Object.keys(fixed);
 		keys.forEach(function(name) { fix(fixed[name]); });
 		return fixed;
@@ -181,7 +183,9 @@ module.exports = {
 		                .filter(function(l) { return !!l; })
 		                .join(' ');
 		var data = lines.split(/\s+/);
-		var bytes = flatten(data.map(toType2));
+		var gsubs = this.gsubs;
+		var bias = this.gsubsBias;
+		var bytes = flatten(data.map(function(v) { return toType2(v, gsubs, bias); }));
 
 		do {
 			var pos = bytes.indexOf(specials["subr_index"]);
@@ -201,7 +205,7 @@ module.exports = {
 
 	getBounds: function(charstring, subroutines) {
 	  subroutines = subroutines || this.getSubroutines();
-		var reader = new this.Reader();
+		var reader = new Type2.Reader();
 		var x=65355, y=x, X=-x, Y=X;
 		reader.addEventListener("coordinate", function(opcode,_x,_y) {
       if (_x<x) { x=_x; } else if (_x>X) { X=_x; }
@@ -217,6 +221,8 @@ module.exports = {
 		};
 	}
 };
+
+module.exports = Type2;
 
 },{"./escops":2,"./ops":3,"./reader":4}],2:[function(require,module,exports){
 module.exports = {

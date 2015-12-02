@@ -1,17 +1,18 @@
 var tests = require("./testutils");
 var fail = tests.fail;
-var type2Charstring = require('../index');
+var Type2 = require('../index');
+var type2 = new Type2();
 var Reader = require('../reader');
 
-tests.loadSheet("sin");
-tests.loadSheet("cos");
-tests.loadSheet("rotate");
+tests.loadSheet(type2, "sin");
+tests.loadSheet(type2, "cos");
+tests.loadSheet(type2, "rotate");
 
-var subroutines = type2Charstring.getSubroutines();
+var subroutines = type2.getSubroutines();
 
 // check bounding box for "default" shape
 var x=999999, y=x, X=-x, Y=X;
-var data = tests.loadSheet("default");
+var data = tests.loadSheet(type2, "default");
 var bytes = data.bytes;
 var reader = new Reader();
 reader.addEventListener("coordinate", function(op, _x, _y) {

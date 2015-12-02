@@ -1,5 +1,4 @@
 var fs = require("fs");
-var type2Charstring = require('../index');
 
 Array.prototype.equals = function(target) {
 	if(this.length !== target.length) return false;
@@ -9,9 +8,9 @@ Array.prototype.equals = function(target) {
 	return true;
 }
 
-module.exports.loadSheet = function(name) {
+module.exports.loadSheet = function(type2, name) {
 	var sheet = fs.readFileSync('test/program.'+name+'.type2').toString();
-	var bytes = type2Charstring.toBytes(sheet);
+	var bytes = type2.toBytes(sheet);
 	var sheetcode = sheet.substring(0,sheet.indexOf("\n")).replace("//",'').trim().split(":");
 	var functor = sheetcode[0];
 	var verification = sheetcode[1].split(",").map(v => parseInt(v));
@@ -20,7 +19,7 @@ module.exports.loadSheet = function(name) {
 		fail("charstring for "+functor+" did not match its verification print.");
 	}
 
-  type2Charstring.bindSubroutine(functor, bytes);
+  type2.bindSubroutine(functor, bytes);
 
 	return {
 		sheet: sheet,

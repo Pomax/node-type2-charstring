@@ -13,7 +13,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node test/test",
-    "build": "browserify -e index.js -o convert.js -s Type2Convert"
+    "build": "browserify -e index.js -o convert.js -s Type2"
   },
   "author": "Pomax",
   "license": "MIT",
