@@ -20,7 +20,6 @@
       svg {
         width: calc(100% - 28em);
         height: calc(100% - 20px);
-        transform: scale(1, -1);
       }
     </style>
     <script src="convert.js"></script>
@@ -30,36 +29,36 @@
 //
 //  Test outline using custom subroutines.
 //
-//  - "num sin" -> sin(v)
-//    Sine over [0,1].
-//  - "num cos" -> cos(v)
-//    Cosine.
-//  - "phi ox oy x y rotate" -> x' y'
-//    Coordinate rotation by phi over (ox,oy).
-//  - "move"
-//    Rotation input preserving rmoveto.
-//  - "line" for rotation-input-preserving
-//    Rotation input preserving rlineto.
-//
 
-    0.1  // rotation angle
-    40   // origin x
-    40   // origin y
+  // set up the initial rotation:
 
-    0    0  rotate move
-    0  500  rotate line
+  0.123
+
+  // We're going to rotate about the
+  // center of our 700x700 box:
+
+ -350 -350 rotate
+  350  350 offset
+  move
+
+  // After this initial start computation,
+  // the remaining operations are all relative
+  // coords, and so can be computed about (0,0)
+
+    0  700  rotate line
+  700    0  rotate line
+    0 -700  rotate line
+ -700    0  rotate line
+
+  100  100  rotate move
   500    0  rotate line
-    0 -500  rotate line
+    0  500  rotate line
  -500    0  rotate line
+    0 -500  rotate line
 
-#  100  100  rotate move
-#  500    0  rotate line
-#    0  500  rotate line
-# -500    0  rotate line
-#    0 -500  rotate line
 
-  // rotation argument cleanup
-  drop drop drop
+  // we can now drop the angle
+  drop
 
 endchar
 </textarea>
@@ -67,6 +66,9 @@ endchar
     <svg>
       <g fill="white">
         <path fill="rgba(0,0,0,0.3)" stroke="red" d=""></path>
+      </g>
+      <g fill="black" class="labels">
+
       </g>
     </svg>
 

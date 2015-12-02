@@ -1,0 +1,7 @@
+// [x, y, ox, oy] => [x+ox, y+oy]
+
+  4 put 3 put 2 put 1 put
+  3 get 1 get add
+  4 get 2 get add
+
+return

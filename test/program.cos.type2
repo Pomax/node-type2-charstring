@@ -1,28 +1,7 @@
-// prep:
 
- 1      0 put
- 0.95   1 put
- 0.8    2 put
- 0.58   3 put
- 0.3    4 put
- 0      5 put
--0.3    6 put
--0.58   7 put
--0.8    8 put
--0.95   9 put
--1     10 put
--0.95  11 put
--0.8   12 put
--0.59  13 put
--0.3   14 put
- 0     15 put
- 0.3   16 put
- 0.59  17 put
- 0.8   18 put
- 0.95  19 put
- 1     20 put
-
-10 mul // -> [10 * x]
-get    // -> retrieve LUT value
+  dup mul dup 4 mul // [x^2, 4x^2]
+  1 exch sub        // [x^2, 1 - 4x^2]
+  exch 1 add        // [1 - 4x^2, 1 + x^2]
+  div
 
 return

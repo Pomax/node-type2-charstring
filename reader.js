@@ -304,11 +304,14 @@ Reader.prototype = {
         var i = this.stack.pop();
         var v = this.stack.pop();
         this.transient[i] = v;
+        // console.log(i+" put: "+v+", ["+this.transient.join(',')+"]");
       }
 
       else if(code === "get") {
         var i = (this.stack.pop())|0;
-        this.stack.push(this.transient[i]);
+        var v = this.transient[i];
+        // console.log(i+" get: "+v+", ["+this.transient.join(',')+"]");
+        this.stack.push(v);
       }
 
 

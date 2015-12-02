@@ -1,59 +1,34 @@
-
-// stack: [angle, ox, oy, x, y]
+// stack: [angle, x, y]
 
   #
   #  Set up the sin() and cos() values:
   #
 
-  5 -1 roll       // => [ox, oy, x, y, angle]
-  dup, dup        // => [ox, oy, x, y, angle, angle, angle]
-  sin exch cos    // => [ox, oy, x, y, angle, sin(angle), cos(angle)]
+  2 put, 1 put, 0 put
 
-  # cache them.
-  5 put, 4 put
+  0 get sin, 4 put
+  0 get cos, 5 put
 
   #
-  #  Set up the (x-ox) and (y-oy) values:
+  # Compute x' = x * cos(a) - y * sin(a)
   #
-
-  5 1 roll             // => [angle, ox, oy, x, y]
-  exch                 // => [angle, ox, oy, y, x]
-  5 1 roll             // => [x, angle, ox, oy, y]
-  exch                 // => [x, angle, ox, y, oy]
-  dup, 2 put           // => [x, angle, ox, y, oy] + [copy of oy cached]
-  sub                  // => [x, angle, ox, y-oy]
-  7 put                // => [x, angle, ox] + [y-oy cached]
-
-  3 -1 roll            // => [angle, ox, x]
-  exch                 // => [angle, x, ox]
-  dup, 1 put           // => [angle, x, ox] + [copy of ox cached]
-  sub                  // => [angle, x-ox]
-  6 put                // => [angle] + [x-ox cached]
-
-  3 put                // => [] + [angle cached]
+  2 get 4 get neg mul, // y * -sin(a)
+  1 get 5 get mul,     // x * cos(a)
+  add,
+  6 put               // [x' cached]
 
   #
-  # Compute x' = ox + (x-ox) cos(a) - (y-oy) sin(a)
+  # Compute y' = x * sin(a) + y * cos(a)
   #
-  7 get 4 get neg mul, // (y-oy) * -sin(a)
-  6 get 5 get mul,     // (x-ox) * cos(a)
-  1 get,               // ox
-  add, add,            // x' = .. + .. + ..
-  8 put                // [] + [x' cached]
+  2 get 5 get mul,     // y * cos(a)
+  1 get 4 get mul,     // x * sin(a)
+  add,
+  7 put                // [y' cached]
 
   #
-  # Compute y' = oy + (x-ox) sin(a) + (y-oy) cos(a)
+  # replace [angle, x', y']
   #
-  7 get 5 get mul,     // (y-oy) * cos(a)
-  6 get 4 get mul,     // (x-ox) * sin(a)
-  2 get,               // oy
-  add, add,            // y' = .. + .. + ..
-  9 put                // [] + [y' cached]
-
-  #
-  # replace [angle, ox, oy, x', y']
-  #
-  3 get, 1 get, 2 get, 8 get, 9 get
+  0 get 6 get 7 get
 
 return
 
