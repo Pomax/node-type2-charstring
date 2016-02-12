@@ -44,9 +44,7 @@ Reader.prototype = {
     var code = false;
     do {
       code = this.readValue(bytes);
-
-      // console.log('<' + code + '> :: [' + this.stack.join(',') + '] :: [' + this.transient.join(',') + ']');
-
+      //console.log('<' + code + '> :: [' + this.stack.join(',') + '] :: [' + this.transient.join(',') + ']');
       if (ops[code]) {
         this.processOperation(bytes, code, subroutines);
       }
@@ -60,7 +58,7 @@ Reader.prototype = {
   },
 
   readValue: function(bytes, b1,b2,b3,b4,b5,v1,v2,s) {
-    // console.log(this.stack.join(','), "::", bytes.join(','));
+    console.log(this.stack.join(','), "::", bytes.join(','));
     b1 = bytes.splice(0,1)[0];
     if (b1 === 12) {
       b2 = bytes.splice(0,1)[0];
@@ -275,13 +273,12 @@ Reader.prototype = {
 
       else if(code === "index") {
         var i = this.stack.pop();
-        // defined behaviour:
-        if (i<0) this.stack.push(this.stack[this.stack.length-1]);
-        // undefined behaviour:
-        if (i>this.stack.lenght) this.stack.push(Math.random());
+        // defined behaviour for negative index:
+        if (i<0) this.stack.push(this.stack.slice(-1)[0]);
+        // undefined behaviour for index beyond stack:
+        else if (i>=this.stack.length) this.stack.push(Math.random());
         // normal behaviour
-        var v = this.stack[this.stack.lenght - i];
-        this.stack.push(v);
+        else this.stack.push(this.stack[i]);
       }
 
       else if(code === "roll") {

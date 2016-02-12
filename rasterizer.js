@@ -13,12 +13,12 @@ var type2 = new Type2();
 var reader = new Type2.Reader();
 
 var customFunctions = [
-  "offset",
-  "sin",
-  "cos",
-  "rotate",
-  "move",
-  "line"
+ "offset",
+ "sin",
+ "cos",
+ "rotate",
+ "move",
+ "line"
 ];
 
 
