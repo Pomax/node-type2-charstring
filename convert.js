@@ -158,7 +158,9 @@ Type2.prototype = {
 				// FIXME: this is not the right way to do things, but
 				//        works for a low gsub count. It pretends
 				//        that the preceding number is a 1 byte value.
-				if(val===29) { arr[pos-1] -= bias; }
+				if(val===29 && arr[pos-1] !== 12) {
+  				arr[pos-1] -= bias;
+				}
 
                 // opcode with bias correction, for things like ifelse operations.
 				if(specials[val]) { arr[pos] = specials[val]; }
