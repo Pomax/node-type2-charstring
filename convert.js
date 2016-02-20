@@ -336,7 +336,11 @@ Reader.prototype = {
       else {
         this.stack.push(code);
       }
-    } while(bytes.length);
+    } while(bytes.length && this.stack.length <= 48);
+
+    if(this.stack.length > 48) {
+      throw("violation of the CFF spec: argument stack exceeds 48 elements");
+    }
   },
 
   readValue: function(bytes, b1,b2,b3,b4,b5,v1,v2,s) {
@@ -560,7 +564,7 @@ Reader.prototype = {
         // undefined behaviour for index beyond stack:
         else if (i>=this.stack.length) this.stack.push(Math.random());
         // normal behaviour
-        else this.stack.push(this.stack[i]);
+        else this.stack.push(this.stack.slice(-1-i)[0]);
       }
 
       else if(code === "roll") {
@@ -596,14 +600,14 @@ Reader.prototype = {
       // ...
 
       else if(code === "and") {
-        var num1 = this.stack.pop();
         var num2 = this.stack.pop();
+        var num1 = this.stack.pop();
         this.stack.push(num1 && num2 ? 1 : 0);
       }
 
       else if(code === "or") {
-        var num1 = this.stack.pop();
         var num2 = this.stack.pop();
+        var num1 = this.stack.pop();
         this.stack.push(num1 || num2 ? 1 : 0);
       }
 
@@ -613,16 +617,16 @@ Reader.prototype = {
       }
 
       else if(code === "eq") {
-        var num1 = this.stack.pop();
         var num2 = this.stack.pop();
+        var num1 = this.stack.pop();
         this.stack.push(num1 === num2 ? 1 : 0);
       }
 
       else if(code === "ifelse") {
-        var s1 = this.stack.pop();
-        var s2 = this.stack.pop();
-        var v1 = this.stack.pop();
         var v2 = this.stack.pop();
+        var v1 = this.stack.pop();
+        var s2 = this.stack.pop();
+        var s1 = this.stack.pop();
         this.stack.push(v1 > v2 ? s2 : s1);
       }
 
