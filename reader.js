@@ -311,6 +311,40 @@ Reader.prototype = {
         this.stack.push(v);
       }
 
+      // ...
+
+      else if(code === "and") {
+        var num1 = this.stack.pop();
+        var num2 = this.stack.pop();
+        this.stack.push(num1 && num2 ? 1 : 0);
+      }
+
+      else if(code === "or") {
+        var num1 = this.stack.pop();
+        var num2 = this.stack.pop();
+        this.stack.push(num1 || num2 ? 1 : 0);
+      }
+
+      else if(code === "not") {
+        var num1 = this.stack.pop();
+        this.stack.push(num1 === 0 ? 1 : 0);
+      }
+
+      else if(code === "eq") {
+        var num1 = this.stack.pop();
+        var num2 = this.stack.pop();
+        this.stack.push(num1 === num2 ? 1 : 0);
+      }
+
+      else if(code === "ifelse") {
+        var s1 = this.stack.pop();
+        var s2 = this.stack.pop();
+        var v1 = this.stack.pop();
+        var v2 = this.stack.pop();
+        this.stack.push(v1 > v2 ? s2 : s1);
+      }
+
+      // ...
 
       else if(code === "callgsubr") {
         var v = this.stack.pop();
