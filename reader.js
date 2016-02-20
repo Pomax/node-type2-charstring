@@ -44,7 +44,6 @@ Reader.prototype = {
     var code = false;
     do {
       code = this.readValue(bytes);
-      //console.log('<' + code + '> :: [' + this.stack.join(',') + '] :: [' + this.transient.join(',') + ']');
       if (ops[code]) {
         this.processOperation(bytes, code, subroutines);
       }
@@ -62,7 +61,6 @@ Reader.prototype = {
   },
 
   readValue: function(bytes, b1,b2,b3,b4,b5,v1,v2,s) {
-    console.log(this.stack.join(','), "::", bytes.join(','));
     b1 = bytes.splice(0,1)[0];
     if (b1 === 12) {
       b2 = bytes.splice(0,1)[0];
@@ -126,7 +124,6 @@ Reader.prototype = {
     if (count < 1240) bias = 107;
     callvalue += bias;
     var routine = subroutines[keys[callvalue]].slice();
-    // console.log("subroutine:", routine.join(','));
     return routine;
   },
 
@@ -305,13 +302,11 @@ Reader.prototype = {
         var i = this.stack.pop();
         var v = this.stack.pop();
         this.transient[i] = v;
-        // console.log(i+" put: "+v+", ["+this.transient.join(',')+"]");
       }
 
       else if(code === "get") {
         var i = (this.stack.pop())|0;
         var v = this.transient[i];
-        // console.log(i+" get: "+v+", ["+this.transient.join(',')+"]");
         this.stack.push(v);
       }
 
