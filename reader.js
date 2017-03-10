@@ -278,9 +278,9 @@ Reader.prototype = {
         // defined behaviour:
         if (i<0) this.stack.push(this.stack[this.stack.length-1]);
         // undefined behaviour:
-        if (i>this.stack.lenght) this.stack.push(Math.random());
+        if (i>this.stack.length) this.stack.push(Math.random());
         // normal behaviour
-        var v = this.stack[this.stack.lenght - i];
+        var v = this.stack[this.stack.length - i];
         this.stack.push(v);
       }
 
